@@ -1,0 +1,2 @@
+ALTER TABLE tb_usuario
+    MODIFY SENHA VARCHAR2(255);
