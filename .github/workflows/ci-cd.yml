@@ -1,0 +1,83 @@
+name: CI/CD Pipeline
+
+on:
+  push:
+    branches:
+      - master
+      - develop
+      - staging
+  pull_request:
+    branches:
+      - develop
+      - staging
+
+jobs:
+  build:
+    name: Build & teste da aplicação
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v3
+
+      - name: Set up JDK 17
+        uses: actions/setup-java@v3
+        with:
+          distribution: temurin
+          java-version: 17
+
+      - name: Build no Maven
+        run: mvn clean package
+
+      - name: Build imagem do Docker
+        run: docker build -t my-app:${{ github.sha }} .
+  
+  deploy:
+    name: Deploy
+    needs: build
+    runs-on: ubuntu-latest
+    if: ${{ github.ref == 'refs/heads/master' || github.ref == 'refs/heads/staging' || github.ref == 'refs/heads/develop' }}
+    steps:
+      - name: Checkout no repositório
+        uses: actions/checkout@v3
+
+      # Define a variável de ambiente com base na branch para selecionar o destino
+      - name: Definir variável de ambiente
+        id: deploy_env
+        run: |
+          if [ "${GITHUB_REF}" = "refs/heads/master" ]; then
+            echo "env=production" >> $GITHUB_OUTPUT
+          elif [ "${GITHUB_REF}" = "refs/heads/staging" ]; then
+            echo "env=staging" >> $GITHUB_OUTPUT
+          else
+            echo "env=development" >> $GITHUB_OUTPUT
+          fi
+      - name: Show target environment
+        run: echo "Deploying to ${{ steps.deploy_env.outputs.env }} environment."
+        
+      # Exemplo de login no Docker Hub
+      - name: Login to Docker Hub
+        uses: docker/login-action@v2
+        with:
+          username: ${{ secrets.DOCKER_USERNAME }}
+          password: ${{ secrets.DOCKER_PASSWORD }}
+
+      - name: Sobe imagem no Docker Hub
+        run: |
+          IMAGE_NAME=my-dockerhub-user/my-app
+          docker tag my-app:${{ github.sha }} ${IMAGE_NAME}:${{ github.sha }}
+          docker push ${IMAGE_NAME}:${{ github.sha }}
+
+      # Aqui você pode adicionar etapas específicas de deploy para cada ambiente.
+      # Por exemplo, se você tiver scripts para atualizar containers em servidores remotos,
+      # ou se usar serviços como AWS, Heroku, Google Cloud, etc.
+      - name: Deploy da Aplicação
+        run: |
+          if [ "${{ steps.deploy_env.outputs.env }}" = "production" ]; then
+            echo "Deploying to production..."
+            # Comandos de deploy para produção
+          elif [ "${{ steps.deploy_env.outputs.env }}" = "staging" ]; then
+            echo "Deploying to staging..."
+            # Comandos de deploy para staging
+          else
+            echo "Deploying to development..."
+            # Comandos de deploy para o ambiente de desenvolvimento
