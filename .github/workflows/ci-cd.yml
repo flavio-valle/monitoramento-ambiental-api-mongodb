@@ -65,7 +65,7 @@ jobs:
 
       - name: Push da imagem do Docker
         run: |
-          IMAGE_NAME=flavinn/monitoramento-api
+          IMAGE_NAME=flavinn/monitoramento-ambiental-api-mongodb
           docker tag ${IMAGE_NAME}:${{ github.sha }} ${IMAGE_NAME}:${{ github.ref_name }}
           docker push ${IMAGE_NAME}:${{ github.sha }}
           docker push ${IMAGE_NAME}:${{ github.ref_name }}
