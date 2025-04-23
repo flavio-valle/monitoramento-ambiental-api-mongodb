@@ -65,8 +65,8 @@ jobs:
 
       - name: Push da imagem do Docker
         run: |
-          IMAGE_NAME=my-dockerhub-user/my-app
-          docker tag my-app:${{ github.sha }} ${IMAGE_NAME}:${{ github.sha }}
+          IMAGE_NAME=flavinn/monitoramento-api
+          docker tag monitoramento-api:${{ github.sha }} ${IMAGE_NAME}:${{ github.sha }}
           docker push ${IMAGE_NAME}:${{ github.sha }}
 
       # Aqui você pode adicionar etapas específicas de deploy para cada ambiente.
