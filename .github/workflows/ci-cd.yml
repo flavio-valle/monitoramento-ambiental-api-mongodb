@@ -29,7 +29,9 @@ jobs:
         run: mvn clean package
 
       - name: Build imagem do Docker
-        run: docker build -t my-app:${{ github.sha }} .
+        run: |
+          IMAGE_NAME=flavinn/monitoramento-api
+          docker build -t ${IMAGE_NAME}:${{ github.sha }} .
   
   deploy:
     name: Deploy
@@ -51,7 +53,7 @@ jobs:
           else
             echo "env=development" >> $GITHUB_OUTPUT
           fi
-      - name: Show target environment
+      - name: Mostrar variável de ambiente
         run: echo "Deploying to ${{ steps.deploy_env.outputs.env }} environment."
         
       # Exemplo de login no Docker Hub
@@ -61,7 +63,7 @@ jobs:
           username: ${{ secrets.DOCKER_USERNAME }}
           password: ${{ secrets.DOCKER_PASSWORD }}
 
-      - name: Sobe imagem no Docker Hub
+      - name: Push da imagem do Docker
         run: |
           IMAGE_NAME=my-dockerhub-user/my-app
           docker tag my-app:${{ github.sha }} ${IMAGE_NAME}:${{ github.sha }}
