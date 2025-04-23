@@ -66,8 +66,9 @@ jobs:
       - name: Push da imagem do Docker
         run: |
           IMAGE_NAME=flavinn/monitoramento-api
-          docker tag monitoramento-api:${{ github.sha }} ${IMAGE_NAME}:${{ github.sha }}
+          docker tag ${IMAGE_NAME}:${{ github.sha }} ${IMAGE_NAME}:${{ github.ref_name }}
           docker push ${IMAGE_NAME}:${{ github.sha }}
+          docker push ${IMAGE_NAME}:${{ github.ref_name }}
 
       # Aqui você pode adicionar etapas específicas de deploy para cada ambiente.
       # Por exemplo, se você tiver scripts para atualizar containers em servidores remotos,
