@@ -1,0 +1,7 @@
+CONFIG:
+  DEFAULT:
+    EXECUTION_ENVIRONMENT: HML
+  PROD:
+    BASE_URL: http://localhost:8080
+  HML:
+    BASE_URL: http://localhost:8080
