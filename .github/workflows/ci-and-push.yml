@@ -39,7 +39,7 @@ jobs:
 
   robot-tests:
     name: Testes de API com Robot Framework
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-22.04  # fix para evitar problemas com Python 3.10
     needs: build-and-push
 
     steps:
@@ -49,7 +49,7 @@ jobs:
       - name: Install Python
         uses: actions/setup-python@v4
         with:
-          python-version: 3.10
+          python-version: '3.10'
 
       - name: Install Robot dependencies
         run: |
@@ -59,12 +59,18 @@ jobs:
       - name: Start API container
         run: |
           docker run -d -p 8080:8080 flavinn/monitoramento-ambiental-api-mongodb:${{ github.ref_name }}
-          sleep 10  # aguarda a API subir
+          sleep 10
+
+      - name: Criar diretório de resultados
+        run: mkdir -p robot-tests/tests/results
 
       - name: Run Robot Tests
         run: |
           cd robot-tests
           robot -d tests/results tests
+
+      - name: Verificar arquivos gerados
+        run: ls -R robot-tests/tests
 
       - name: Robot Reporter
         if: always()
